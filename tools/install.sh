@@ -27,14 +27,14 @@ init() {
 
 check_optional_args() {
   # Set default values
-  LAUNCH_ZSH_AFTER=1
+  BATCH_MODE=0
 
   # Evaluate arguments
   for arg in $@; do
     case "$arg" in
       --batch)
-        LAUNCH_ZSH_AFTER=0
-        printf "%s\n" "${BLUE}--batch:${NORMAL} zsh will not be started after installation"
+        BATCH_MODE=1
+        printf "%s\n" "${BLUE}--batch:${NORMAL} batch mode enabled."
         ;;
       *)
         printf "${YELLOW}Unrecognized argument: ${BLUE}${arg}${NORMAL}\n"
@@ -100,7 +100,7 @@ main() {
 
   # If this user's login shell is not already "zsh", attempt to switch.
   TEST_CURRENT_SHELL=$(expr "${SHELL:=/bin/false}" : '.*/\(.*\)')
-  if [ "$TEST_CURRENT_SHELL" != "zsh" ]; then
+  if [ "$TEST_CURRENT_SHELL" != "zsh" -a $BATCH_MODE -eq 0 ]; then
     # If this platform provides a "chsh" command (not Cygwin), do it, man!
     if hash chsh >/dev/null 2>&1; then
       printf "${BLUE}Time to change your default shell to zsh!${NORMAL}\n"
@@ -130,7 +130,7 @@ main() {
   printf "${NORMAL}"
 
   # Launch zsh, unless defined otherwise
-  if [ $LAUNCH_ZSH_AFTER -eq 1 ]; then
+  if [ $BATCH_MODE -eq 0 ]; then
     env zsh -l
   fi
 }
